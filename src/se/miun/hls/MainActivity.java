@@ -72,7 +72,7 @@ public class MainActivity extends Activity implements OnCompletionListener {
 	public void onCompletion(MediaPlayer mp) {
 		playNextVideo();
 	}
-
+//aeazaza
 	private void playNextVideo() {
 		if (this.video_uri_list.size() > ++this.video_uri_iteration_index) {
 
@@ -86,4 +86,6 @@ public class MainActivity extends Activity implements OnCompletionListener {
 									this.video_uri_iteration_index).toString());
 		}
 	}
+	
+	
 }
