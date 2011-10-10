@@ -1,11 +1,19 @@
 package se.miun.hls;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.net.ServerSocket;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Random;
 import java.util.Vector;
+import java.util.concurrent.Executors;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -17,24 +25,71 @@ import org.apache.http.protocol.HttpContext;
 import android.net.Uri;
 import android.util.Log;
 
-public class HLSLocalStreamProxy {
+public class HLSLocalStreamProxy implements HLSLocalStreamProxyInterface {
 
+	private class BufferedVideoFile {
+		final String bufferBase = "./";
+		File videoFile;
+
+		public BufferedVideoFile() {
+		}
+
+		void downloadAsync(final String url) {
+			Executors.newSingleThreadExecutor().submit(new Runnable() {
+				
+				@Override
+				public void run() {
+					try {
+						downloadSync(url);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}					
+				}
+			});
+		}
+
+		void downloadSync(String url) throws Exception {
+			String filename = "buffer_video_" + (new Random()).nextInt();
+			videoFile = new File(bufferBase + filename);
+
+			HttpClient httpClient = new DefaultHttpClient();
+			HttpContext localContext = new BasicHttpContext();
+			HttpGet httpGet = new HttpGet(new URI(url));
+			HttpResponse response = httpClient.execute(httpGet, localContext);
+
+			InputStream is = response.getEntity().getContent();
+			OutputStream os = new FileOutputStream(this.videoFile);
+
+			byte[] buffer = new byte[2048];
+			while (is.available() > 0) {
+				int size = is.read(buffer);
+				os.write(buffer, 0, size);
+			}
+			
+			videoFile.deleteOnExit();
+		}
+
+		void delete() {
+			videoFile.delete();
+		}
+	}
+
+	private HLSLocalStreamProxyEventListener listener = null;
 	private static final String FILETYPE_PLAYLIST = "m3u8";
 
 	private String TAG = this.getClass().getSimpleName();
-	private Vector<Uri> streamUris = new Vector<Uri>();
-	private ArrayList<Uri> uris = new ArrayList<Uri>();
 
-	/**
-	 * List of all Uri's described by the playlist
-	 * 
-	 * @return Returns a list of all Uri's described by the playlist
-	 */
-	public Vector<Uri> getStreamUris() {
-		return streamUris;
-	}
+	private String baseUrl = "";
+	private HashMap<Float, String> playlistQualityUrlMap = new HashMap<Float, String>();
+	private Vector<String> videoFileNames = new Vector<String>();
+	
+	private Vector<BufferedVideoFile> bufferedVideoParts = new Vector<HLSLocalStreamProxy.BufferedVideoFile>();
+	
+	//private ServerSocket listenSock 
 
-	public HLSLocalStreamProxy() {
+	public HLSLocalStreamProxy(HLSLocalStreamProxyEventListener listener, int listenPort) {
+		this.listener = listener;
+		
 	}
 
 	/**
@@ -45,7 +100,13 @@ public class HLSLocalStreamProxy {
 	 * @param resourceUri
 	 * @throws Exception
 	 */
-	public void parseAndAddToList(Uri resourceUri) throws Exception {
+	public void parseAndAddToList(Uri resourceUri, boolean root)
+			throws Exception {
+		if (root) {
+			this.baseUrl = "http://" + resourceUri.getHost();
+			Log.d(TAG, baseUrl);
+		}
+
 		String filename = resourceUri.getLastPathSegment().toString();
 		String extention = "";
 		String split[] = filename.split("\\.");
@@ -58,10 +119,10 @@ public class HLSLocalStreamProxy {
 
 		if (extention.equals(FILETYPE_PLAYLIST)) {
 			for (Uri uri : parseList(resourceUri)) {
-				this.parseAndAddToList(uri);
+				this.parseAndAddToList(uri, false);
 			}
 		} else {
-			this.streamUris.add(resourceUri);
+			// this.streamUris.add(resourceUri);
 		}
 	}
 
@@ -87,40 +148,10 @@ public class HLSLocalStreamProxy {
 
 			Uri child = Uri.withAppendedPath(Uri.parse(uriPathWithoutFilename),
 					line.trim());
-			uris.add(child);
 			ret.add(child);
 		}
 
 		return ret;
-	}
-	
-	int test = 0;
-	
-	public HashMap<String, Uri> parseQuality(Uri listUri) throws Exception {
-		HashMap<String, Uri> qualities = new HashMap<String, Uri>();
-		
-		test++;
-		
-		Log.i("QUALITY", "it works, "+test);
-		
-		String content = downloadContents(listUri);
-		
-		for(String line : content.split("\n")){
-			
-			if(!line.trim().contains("BANDWIDTH")){
-				continue;
-			}
-			
-			Log.i("QUALITY", "Line: " + line);
-			String quality = line.substring(line.lastIndexOf("BANDWIDTH=")+"BANDWIDTH=".length());
-			
-			Log.i("QUALITY", "Quality: " + quality);
-			
-			qualities.put(quality, uris.get(test));
-			test++;
-		}
-		
-		return qualities;
 	}
 
 	private String downloadContents(Uri uri) throws Exception {
@@ -141,9 +172,53 @@ public class HLSLocalStreamProxy {
 		return sb.toString();
 	}
 
-	/*public void startLocalMediaProxy(int listenPort) throws IOException {
+	@Override
+	public void setUrl(String topPlaylistUrl) {
+		// TODO Auto-generated method stub
 
-		ServerSocket listen = new ServerSocket(listenPort);
-		
-	}*/
+	}
+
+	@Override
+	public String getUrl() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean validateUrl(String topPlaylistUrl) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public Vector<Float> getAvailableQualities() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setQuality(int qualityIndex) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public boolean hasNextLocalVideoUrl() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public String getNextLocalVideoUrl() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/*
+	 * public void startLocalMediaProxy(int listenPort) throws IOException {
+	 * 
+	 * ServerSocket listen = new ServerSocket(listenPort);
+	 * 
+	 * }
+	 */
 }

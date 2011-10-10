@@ -1,13 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    >
-<TextView  
-    android:layout_width="fill_parent" 
-    android:layout_height="wrap_content" 
-    android:text="@string/hello"
-    />
-<VideoView android:layout_width="match_parent" android:layout_height="wrap_content" android:id="@+id/videoView"></VideoView>
-</LinearLayout>
+<FrameLayout 
+	xmlns:android="http://schemas.android.com/apk/res/android"
+   	
+   	android:layout_width="fill_parent" 
+   	android:layout_height="fill_parent"> 
+	
+	<LinearLayout 
+		xmlns:android="http://schemas.android.com/apk/res/android"
+		android:id="@+id/videoLayout"
+	    android:orientation="vertical"
+	    android:gravity="center"
+	    android:layout_gravity="center"
+	    android:layout_width="fill_parent"
+	    android:layout_height="fill_parent"
+	    >
+		<VideoView 
+			android:id="@+id/videoView" 
+			android:layout_width="match_parent" 
+			android:layout_height="wrap_content">
+		</VideoView>
+	</LinearLayout>
+	
+	<TextView  
+		android:id="@+id/floating_background" 
+		android:layout_width="fill_parent" 
+	    android:layout_height="60dp" 
+	    android:layout_gravity="bottom"
+	    android:gravity="center_horizontal"
+	    android:background="#ffffffff" />
+	
+	<Button android:id="@+id/floating_play_pause" 
+             android:layout_width="wrap_content" 
+             android:layout_height="wrap_content" 
+             android:background="@drawable/ic_media_play"
+             android:layout_marginLeft="15dp"
+             android:layout_marginBottom="15dp"
+             android:layout_gravity="left|bottom" />
+
+	<SeekBar android:id="@+id/floating_seekbar"  
+			android:layout_width="fill_parent" 
+            android:layout_height="wrap_content"
+            android:background="#AAffffff"
+            android:layout_marginLeft="62dp"
+            android:layout_marginRight="62dp"            
+            android:layout_marginBottom="15dp" 
+            android:layout_gravity="left|bottom" />
+                      
+	<Button android:id="@+id/floating_mute" 
+             android:layout_width="wrap_content" 
+             android:layout_height="wrap_content" 
+             android:background="@drawable/ic_lock_ringer_on"
+             android:layout_marginRight="15dp"
+             android:layout_marginBottom="15dp" 
+             android:layout_gravity="right|bottom" />
+</FrameLayout> 
+		
