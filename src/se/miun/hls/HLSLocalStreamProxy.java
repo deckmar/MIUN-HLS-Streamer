@@ -1,10 +1,10 @@
 package se.miun.hls;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.ServerSocket;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Vector;
 
 import org.apache.http.HttpResponse;
@@ -14,8 +14,6 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 
-import android.app.Application;
-import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
 
@@ -25,6 +23,7 @@ public class HLSLocalStreamProxy {
 
 	private String TAG = this.getClass().getSimpleName();
 	private Vector<Uri> streamUris = new Vector<Uri>();
+	private ArrayList<Uri> uris = new ArrayList<Uri>();
 
 	/**
 	 * List of all Uri's described by the playlist
@@ -88,10 +87,40 @@ public class HLSLocalStreamProxy {
 
 			Uri child = Uri.withAppendedPath(Uri.parse(uriPathWithoutFilename),
 					line.trim());
+			uris.add(child);
 			ret.add(child);
 		}
 
 		return ret;
+	}
+	
+	int test = 0;
+	
+	public HashMap<String, Uri> parseQuality(Uri listUri) throws Exception {
+		HashMap<String, Uri> qualities = new HashMap<String, Uri>();
+		
+		test++;
+		
+		Log.i("QUALITY", "it works, "+test);
+		
+		String content = downloadContents(listUri);
+		
+		for(String line : content.split("\n")){
+			
+			if(!line.trim().contains("BANDWIDTH")){
+				continue;
+			}
+			
+			Log.i("QUALITY", "Line: " + line);
+			String quality = line.substring(line.lastIndexOf("BANDWIDTH=")+"BANDWIDTH=".length());
+			
+			Log.i("QUALITY", "Quality: " + quality);
+			
+			qualities.put(quality, uris.get(test));
+			test++;
+		}
+		
+		return qualities;
 	}
 
 	private String downloadContents(Uri uri) throws Exception {

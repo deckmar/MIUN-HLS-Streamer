@@ -1,11 +1,6 @@
 package se.miun.hls;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.net.URLConnection;
+import java.util.HashMap;
 import java.util.Vector;
 
 import android.app.Activity;
@@ -15,12 +10,10 @@ import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.net.Uri;
 import android.os.Bundle;
-import android.text.Editable;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
-import android.webkit.URLUtil;
 import android.widget.EditText;
 import android.widget.Toast;
 import android.widget.VideoView;
@@ -77,6 +70,8 @@ public class MainActivity extends Activity implements OnCompletionListener {
 					.parse(url));
 			// .parse("http://devimages.apple.com/iphone/samples/bipbop/bipbopall.m3u8"));
 
+			HashMap<String, Uri> qualities = hlsProxy.parseQuality(Uri.parse("http://devimages.apple.com/iphone/samples/bipbop/bipbopall.m3u8"));
+			
 			Log.d(TAG, "List of file uri:");
 			this.video_uri_list = this.hlsProxy.getStreamUris();
 			for (Uri u : this.video_uri_list) {
@@ -178,9 +173,7 @@ public class MainActivity extends Activity implements OnCompletionListener {
 			}).show();
 			break;
 		}
-		int test = 1;
 		return true;
 	}
-	//hej
 	
 }
