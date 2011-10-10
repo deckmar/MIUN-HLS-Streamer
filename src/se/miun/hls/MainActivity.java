@@ -178,6 +178,9 @@ public class MainActivity extends Activity implements OnCompletionListener {
 			}).show();
 			break;
 		}
+		int test = 1;
 		return true;
 	}
+	//hej
+	
 }
