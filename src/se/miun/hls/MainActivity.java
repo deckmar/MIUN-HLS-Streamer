@@ -15,6 +15,7 @@ import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.Editable;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -29,6 +30,7 @@ public class MainActivity extends Activity implements OnCompletionListener {
 	public static final int CONF_SERVER_LISTEN_PORT = 31337;
 
 	private final String TAG = this.getClass().getSimpleName();
+	private String DEFAULT_URL = "http://devimages.apple.com/iphone/samples/bipbop/gear1/prog_index.m3u8";
 	private VideoView video;
 	private Vector<Uri> video_uri_list;
 	private int video_uri_iteration_index = 0;
@@ -42,10 +44,37 @@ public class MainActivity extends Activity implements OnCompletionListener {
 
 		video = (VideoView) findViewById(R.id.videoView);
 
+		
+		parseAndRun(DEFAULT_URL);
+		
+/*		try {
+			hlsProxy.parseAndAddToList(Uri
+					.parse(DEFAULT_URL));
+			// .parse("http://devimages.apple.com/iphone/samples/bipbop/bipbopall.m3u8"));
+
+			Log.d(TAG, "List of file uri:");
+			this.video_uri_list = this.hlsProxy.getStreamUris();
+			for (Uri u : this.video_uri_list) {
+				Log.d(TAG, u.toString());
+			}
+
+			video.setOnCompletionListener(this);
+
+			if (video_uri_list.size() > 0) {
+				// Start playing all the video files described by the HLS link
+				onCompletion(null);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+*/
+	}
+
+	public void parseAndRun(String url){
 		hlsProxy = new HLSLocalStreamProxy();
 		try {
 			hlsProxy.parseAndAddToList(Uri
-					.parse("http://devimages.apple.com/iphone/samples/bipbop/gear4/prog_index.m3u8"));
+					.parse(url));
 			// .parse("http://devimages.apple.com/iphone/samples/bipbop/bipbopall.m3u8"));
 
 			Log.d(TAG, "List of file uri:");
@@ -64,7 +93,7 @@ public class MainActivity extends Activity implements OnCompletionListener {
 			e.printStackTrace();
 		}
 	}
-
+	
 	@Override
 	/**
 	 * When tapping (or dragging) screen - play next movie
@@ -106,29 +135,47 @@ public class MainActivity extends Activity implements OnCompletionListener {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()){
 		case 1:
-			final String[] qualities = {"Quality1, Quality2, Quality3, Quality4"};
+			final String[] qualities = {"Quality1", "Quality2", "Quality3", "Quality4"};
 			AlertDialog.Builder dialog = new AlertDialog.Builder(this);
 			dialog.setTitle("Select a quality");
 			dialog.setItems(qualities, new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface diaInt, int quality) {
-					Toast.makeText(getApplicationContext(), qualities[quality], Toast.LENGTH_SHORT).show();
+					Toast.makeText(getApplicationContext(), qualities[quality] + " selected!", Toast.LENGTH_SHORT).show();
 				}
 			}).show();
 			break;
 		case 2:
 			final EditText ed = new EditText(this);
-			ed.setText("Open URL");
+			ed.setText("http://devimages.apple.com/iphone/samples/bipbop/gear2/prog_index.m3u8");
+			ed.setSelection(ed.getText().length());
 			final AlertDialog.Builder builder = new AlertDialog.Builder(this);
 			builder.setView(ed)
+			.setTitle("Open URL")
 			.setPositiveButton("Open", new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialogInt, int whichButton) {
-					
+					video.stopPlayback();
+					parseAndRun(ed.getText().toString());
 				}
 			}).show();
 			break;
 		case 3:
+			final AlertDialog.Builder exit = new AlertDialog.Builder(this);
+			exit.setTitle("Do you really want to exit?")
+			.setPositiveButton("Yes, quit", new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface arg0, int arg1) {
+					video.stopPlayback();
+					finish();
+				}
+			})
+			.setNegativeButton("No, not yet", new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface diaInt, int arg1) {
+					diaInt.cancel();
+				}
+			}).show();
 			break;
 		}
 		return true;
