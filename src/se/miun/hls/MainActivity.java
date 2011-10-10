@@ -34,7 +34,7 @@ public class MainActivity extends Activity implements OnCompletionListener, HLSL
 	private VideoView video;
 	private Vector<Uri> video_uri_list;
 	private int video_uri_iteration_index = 0;
-	private HLSLocalStreamProxy hlsProxy;
+	private HLSLocalStreamProxyInterface hlsProxy;
 
 	/** Called when the activity is first created. */
 	@Override
@@ -44,30 +44,7 @@ public class MainActivity extends Activity implements OnCompletionListener, HLSL
 
 		video = (VideoView) findViewById(R.id.videoView);
 
-		
 		parseAndRun(DEFAULT_URL);
-		
-/*		try {
-			hlsProxy.parseAndAddToList(Uri
-					.parse(DEFAULT_URL));
-			// .parse("http://devimages.apple.com/iphone/samples/bipbop/bipbopall.m3u8"));
-
-			Log.d(TAG, "List of file uri:");
-			this.video_uri_list = this.hlsProxy.getStreamUris();
-			for (Uri u : this.video_uri_list) {
-				Log.d(TAG, u.toString());
-			}
-
-			video.setOnCompletionListener(this);
-
-			if (video_uri_list.size() > 0) {
-				// Start playing all the video files described by the HLS link
-				onCompletion(null);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-*/
 	}
 
 	public void parseAndRun(String url){

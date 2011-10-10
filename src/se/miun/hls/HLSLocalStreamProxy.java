@@ -153,7 +153,7 @@ public class HLSLocalStreamProxy implements HLSLocalStreamProxyInterface {
 
 		return ret;
 	}
-
+	
 	private String downloadContents(Uri uri) throws Exception {
 		StringBuilder sb = new StringBuilder();
 		HttpClient httpClient = new DefaultHttpClient();
@@ -192,8 +192,29 @@ public class HLSLocalStreamProxy implements HLSLocalStreamProxyInterface {
 
 	@Override
 	public Vector<Float> getAvailableQualities() {
-		// TODO Auto-generated method stub
-		return null;
+		Vector<Float> qualities = new Vector<Float>();
+/*		
+		Log.i("QUALITY", "it works");
+		
+		String content = downloadContents(listUri);
+		
+		for(String line : content.split("\n")){
+			
+			if(!line.trim().contains("BANDWIDTH")){
+				continue;
+			}
+			
+			Log.i("QUALITY", "Line: " + line);
+			String quality = line.substring(line.lastIndexOf("BANDWIDTH=")+"BANDWIDTH=".length());
+			
+			Log.i("QUALITY", "Quality: " + quality);
+			
+			qualities.put(quality, uris.get(test));
+			test++;
+		}
+*/		
+		return qualities;
+
 	}
 
 	@Override
