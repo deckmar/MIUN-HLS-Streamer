@@ -25,7 +25,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 import android.widget.VideoView;
 
-public class MainActivity extends Activity implements OnCompletionListener {
+public class MainActivity extends Activity implements OnCompletionListener, HLSLocalStreamProxyEventListener {
 
 	public static final int CONF_SERVER_LISTEN_PORT = 31337;
 
@@ -71,17 +71,16 @@ public class MainActivity extends Activity implements OnCompletionListener {
 	}
 
 	public void parseAndRun(String url){
-		hlsProxy = new HLSLocalStreamProxy();
+		hlsProxy = new HLSLocalStreamProxy(this, CONF_SERVER_LISTEN_PORT);
 		try {
-			hlsProxy.parseAndAddToList(Uri
-					.parse(url));
-			// .parse("http://devimages.apple.com/iphone/samples/bipbop/bipbopall.m3u8"));
+			hlsProxy.setUrl("http://devimages.apple.com/iphone/samples/bipbop/gear4/prog_index.m3u8");
+			//hlsProxy.setUrl("http://devimages.apple.com/iphone/samples/bipbop/bipbopall.m3u8");
 
 			Log.d(TAG, "List of file uri:");
-			this.video_uri_list = this.hlsProxy.getStreamUris();
+			/*this.video_uri_list = this.hlsProxy.getStreamUris();
 			for (Uri u : this.video_uri_list) {
 				Log.d(TAG, u.toString());
-			}
+			}*/
 
 			video.setOnCompletionListener(this);
 
@@ -179,5 +178,17 @@ public class MainActivity extends Activity implements OnCompletionListener {
 			break;
 		}
 		return true;
+	}
+
+	@Override
+	public void errorNetwork(String msg) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void errorOther(Exception ex) {
+		// TODO Auto-generated method stub
+		
 	}
 }
