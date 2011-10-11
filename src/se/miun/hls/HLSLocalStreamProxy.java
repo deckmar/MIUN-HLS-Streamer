@@ -36,14 +36,14 @@ public class HLSLocalStreamProxy implements HLSLocalStreamProxyInterface {
 
 		void downloadAsync(final String url) {
 			Executors.newSingleThreadExecutor().submit(new Runnable() {
-				
+
 				@Override
 				public void run() {
 					try {
 						downloadSync(url);
 					} catch (Exception e) {
 						e.printStackTrace();
-					}					
+					}
 				}
 			});
 		}
@@ -65,7 +65,7 @@ public class HLSLocalStreamProxy implements HLSLocalStreamProxyInterface {
 				int size = is.read(buffer);
 				os.write(buffer, 0, size);
 			}
-			
+
 			videoFile.deleteOnExit();
 		}
 
@@ -82,14 +82,15 @@ public class HLSLocalStreamProxy implements HLSLocalStreamProxyInterface {
 	private String baseUrl = "";
 	private HashMap<Float, String> playlistQualityUrlMap = new HashMap<Float, String>();
 	private Vector<String> videoFileNames = new Vector<String>();
-	
-	private Vector<BufferedVideoFile> bufferedVideoParts = new Vector<HLSLocalStreamProxy.BufferedVideoFile>();
-	
-	//private ServerSocket listenSock 
 
-	public HLSLocalStreamProxy(HLSLocalStreamProxyEventListener listener, int listenPort) {
+	private Vector<BufferedVideoFile> bufferedVideoParts = new Vector<HLSLocalStreamProxy.BufferedVideoFile>();
+	private String fullUrl;
+
+	// private ServerSocket listenSock
+
+	public HLSLocalStreamProxy(HLSLocalStreamProxyEventListener listener,
+			int listenPort) {
 		this.listener = listener;
-		
 	}
 
 	/**
@@ -102,6 +103,7 @@ public class HLSLocalStreamProxy implements HLSLocalStreamProxyInterface {
 	 */
 	public void parseAndAddToList(Uri resourceUri, boolean root)
 			throws Exception {
+
 		if (root) {
 			this.baseUrl = "http://" + resourceUri.getHost();
 			Log.d(TAG, baseUrl);
@@ -114,19 +116,48 @@ public class HLSLocalStreamProxy implements HLSLocalStreamProxyInterface {
 			extention = split[split.length - 1];
 		}
 
-		// Log.d(TAG, filename);
-		// Log.d(TAG, extention);
+		if (root) {
+			// The current playlist-files correspond to qualities.
 
-		if (extention.equals(FILETYPE_PLAYLIST)) {
-			for (Uri uri : parseList(resourceUri)) {
-				this.parseAndAddToList(uri, false);
+			String currentPath = "";
+			Float currentQuality = 0f;
+			
+			String content = downloadContents(resourceUri);
+			for (String line : content.split("\n")) {
+				line = line.trim();
+				if (line.startsWith("#") && line.contains("BANDWIDTH")) {
+					// Get the current bandwidth from the EXT comment
+					String[] split2 = line.split("BANDWIDTH=");
+					currentQuality = Float.parseFloat(split2[1]);
+				} else if (!line.startsWith("#")) {
+
+					String[] split2 = line.split("\\/");
+					currentPath = split2[0];
+					
+					this.playlistQualityUrlMap.put(currentQuality, currentPath);
+					
+					Log.d(TAG, "Put: " + currentQuality + " : " + currentPath);
+					
+					/*String uriPathWithoutFilename = resourceUri.toString();
+					uriPathWithoutFilename = uriPathWithoutFilename.substring(
+							0, uriPathWithoutFilename.indexOf(resourceUri
+									.getLastPathSegment()));*/
+
+					/*Uri child = Uri.withAppendedPath(
+							Uri.parse(uriPathWithoutFilename), line.trim());*/
+				}
 			}
+
+			/*
+			 * for (Uri uri : parseList(resourceUri)) {
+			 * this.parseAndAddToList(uri, false); }
+			 */
 		} else {
-			// this.streamUris.add(resourceUri);
+			this.videoFileNames.add(filename);
 		}
 	}
 
-	private Vector<Uri> parseList(Uri listUri) throws Exception {
+	/*private Vector<Uri> parseList(Uri listUri) throws Exception {
 		Vector<Uri> ret = new Vector<Uri>();
 
 		String content = downloadContents(listUri);
@@ -152,7 +183,7 @@ public class HLSLocalStreamProxy implements HLSLocalStreamProxyInterface {
 		}
 
 		return ret;
-	}
+	}*/
 
 	private String downloadContents(Uri uri) throws Exception {
 		StringBuilder sb = new StringBuilder();
@@ -173,15 +204,15 @@ public class HLSLocalStreamProxy implements HLSLocalStreamProxyInterface {
 	}
 
 	@Override
-	public void setUrl(String topPlaylistUrl) {
-		// TODO Auto-generated method stub
-
+	public void setUrl(String topPlaylistUrl) throws Exception {
+		this.fullUrl = topPlaylistUrl;
+		
+		parseAndAddToList(Uri.parse(topPlaylistUrl), true);
 	}
 
 	@Override
 	public String getUrl() {
-		// TODO Auto-generated method stub
-		return null;
+		return this.fullUrl;
 	}
 
 	@Override
