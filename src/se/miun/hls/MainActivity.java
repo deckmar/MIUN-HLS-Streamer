@@ -63,6 +63,9 @@
 			this.muteButton.setVisibility(View.INVISIBLE); 
 			this.seekBar.setVisibility(View.INVISIBLE);
 			
+			//this.seekBar.setMax( int max ); //e.g. 180 (number of subclips)
+			//this.seekBar.setProgress( int progress ); //update on change of subclip and on seekbar change e.g. 5 
+			
 			// Audio mgr
 			mAm = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
 			mIsMute = false;
@@ -160,6 +163,7 @@
 				@Override
 				public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
 					// TODO Calculate which *.ts sequence to start buffer.
+					
 				}
 			});
 			
