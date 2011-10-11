@@ -33,8 +33,6 @@
 		private final String TAG = this.getClass().getSimpleName();
 		private String DEFAULT_URL = "http://devimages.apple.com/iphone/samples/bipbop/gear1/prog_index.m3u8";
 		private VideoView video;
-		private Vector<Uri> video_uri_list;
-		private int video_uri_iteration_index = 0;
 		private HLSLocalStreamProxy hlsProxy;
 		private Button playOrPauseButton;
 		private Button muteButton;
@@ -168,21 +166,20 @@
 		public void parseAndRun(String url){
 			hlsProxy = new HLSLocalStreamProxy(this, CONF_SERVER_LISTEN_PORT);
 			try {
-				hlsProxy.setUrl("http://devimages.apple.com/iphone/samples/bipbop/gear4/prog_index.m3u8");
-				//hlsProxy.setUrl("http://devimages.apple.com/iphone/samples/bipbop/bipbopall.m3u8");
+				//hlsProxy.setUrl("http://devimages.apple.com/iphone/samples/bipbop/gear4/prog_index.m3u8");
+				hlsProxy.setUrl("http://devimages.apple.com/iphone/samples/bipbop/bipbopall.m3u8");
 	
-				Log.d(TAG, "List of file uri:");
-				/*this.video_uri_list = this.hlsProxy.getStreamUris();
-				for (Uri u : this.video_uri_list) {
-					Log.d(TAG, u.toString());
-				}*/
+				Log.d(TAG, "List of qualities: ");
+				for (Float q : this.hlsProxy.getAvailableQualities()) {
+					Log.d(TAG, q.toString());
+				}
 	
 				video.setOnCompletionListener(this);
 	
-				if (video_uri_list.size() > 0) {
+				/*if (video_uri_list.size() > 0) {
 					// Start playing all the video files described by the HLS link
 					onCompletion(null);
-				}
+				}*/
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -203,7 +200,7 @@
 		}
 	
 		private void playNextVideo() {
-			if (this.video_uri_list.size() > ++this.video_uri_iteration_index) {
+			/*if (this.video_uri_list.size() > ++this.video_uri_iteration_index) {
 	
 				this.video.setVideoURI(this.video_uri_list
 						.get(this.video_uri_iteration_index));
@@ -213,7 +210,7 @@
 						"Now playling: "
 								+ this.video_uri_list.get(
 										this.video_uri_iteration_index).toString());
-			}
+			}*/
 		}
 		
 		@Override
