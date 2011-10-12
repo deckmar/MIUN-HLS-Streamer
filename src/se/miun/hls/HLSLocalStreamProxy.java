@@ -104,11 +104,6 @@ public class HLSLocalStreamProxy implements HLSLocalStreamProxyInterface {
 	public void parseAndAddToList(Uri resourceUri, boolean root)
 			throws Exception {
 
-		if (root) {
-			this.baseUrl = "http://" + resourceUri.getHost();
-			Log.d(TAG, baseUrl);
-		}
-
 		String filename = resourceUri.getLastPathSegment().toString();
 		String extention = "";
 		String split[] = filename.split("\\.");
@@ -117,11 +112,18 @@ public class HLSLocalStreamProxy implements HLSLocalStreamProxyInterface {
 		}
 
 		if (root) {
+
+			this.baseUrl = "http://" + resourceUri.getHost()
+					+ resourceUri.getPath();
+			split = this.baseUrl.split(filename);
+			baseUrl = split[0];
+			Log.d(TAG, baseUrl);
+
 			// The current playlist-files correspond to qualities.
 
 			String currentPath = "";
 			Float currentQuality = 0f;
-			
+
 			String content = downloadContents(resourceUri);
 			for (String line : content.split("\n")) {
 				line = line.trim();
@@ -133,18 +135,25 @@ public class HLSLocalStreamProxy implements HLSLocalStreamProxyInterface {
 
 					String[] split2 = line.split("\\/");
 					currentPath = split2[0];
-					
-					this.playlistQualityUrlMap.put(currentQuality, currentPath);
-					
-					Log.d(TAG, "Put: " + currentQuality + " : " + currentPath);
-					
-					/*String uriPathWithoutFilename = resourceUri.toString();
-					uriPathWithoutFilename = uriPathWithoutFilename.substring(
-							0, uriPathWithoutFilename.indexOf(resourceUri
-									.getLastPathSegment()));*/
 
-					/*Uri child = Uri.withAppendedPath(
-							Uri.parse(uriPathWithoutFilename), line.trim());*/
+					this.playlistQualityUrlMap.put(currentQuality, currentPath);
+
+					Log.d(TAG, "Put: " + currentQuality + " : " + currentPath);
+
+					parseAndAddToList(Uri.parse(this.baseUrl + filename), false);
+
+					/*
+					 * String uriPathWithoutFilename = resourceUri.toString();
+					 * uriPathWithoutFilename =
+					 * uriPathWithoutFilename.substring( 0,
+					 * uriPathWithoutFilename.indexOf(resourceUri
+					 * .getLastPathSegment()));
+					 */
+
+					/*
+					 * Uri child = Uri.withAppendedPath(
+					 * Uri.parse(uriPathWithoutFilename), line.trim());
+					 */
 				}
 			}
 
@@ -154,36 +163,33 @@ public class HLSLocalStreamProxy implements HLSLocalStreamProxyInterface {
 			 */
 		} else {
 			this.videoFileNames.add(filename);
+			Log.d(TAG, filename);
 		}
 	}
 
-	/*private Vector<Uri> parseList(Uri listUri) throws Exception {
-		Vector<Uri> ret = new Vector<Uri>();
-
-		String content = downloadContents(listUri);
-
-		// Log.d(TAG, content);
-
-		for (String line : content.split("\n")) {
-
-			// Log.d(TAG, "Line: " + line);
-
-			if (line.trim().startsWith("#")) {
-				continue;
-			}
-
-			String uriPathWithoutFilename = listUri.toString();
-			uriPathWithoutFilename = uriPathWithoutFilename
-					.substring(0, uriPathWithoutFilename.indexOf(listUri
-							.getLastPathSegment()));
-
-			Uri child = Uri.withAppendedPath(Uri.parse(uriPathWithoutFilename),
-					line.trim());
-			ret.add(child);
-		}
-
-		return ret;
-	}*/
+	/*
+	 * private Vector<Uri> parseList(Uri listUri) throws Exception { Vector<Uri>
+	 * ret = new Vector<Uri>();
+	 * 
+	 * String content = downloadContents(listUri);
+	 * 
+	 * // Log.d(TAG, content);
+	 * 
+	 * for (String line : content.split("\n")) {
+	 * 
+	 * // Log.d(TAG, "Line: " + line);
+	 * 
+	 * if (line.trim().startsWith("#")) { continue; }
+	 * 
+	 * String uriPathWithoutFilename = listUri.toString();
+	 * uriPathWithoutFilename = uriPathWithoutFilename .substring(0,
+	 * uriPathWithoutFilename.indexOf(listUri .getLastPathSegment()));
+	 * 
+	 * Uri child = Uri.withAppendedPath(Uri.parse(uriPathWithoutFilename),
+	 * line.trim()); ret.add(child); }
+	 * 
+	 * return ret; }
+	 */
 
 	private String downloadContents(Uri uri) throws Exception {
 		StringBuilder sb = new StringBuilder();
@@ -206,7 +212,7 @@ public class HLSLocalStreamProxy implements HLSLocalStreamProxyInterface {
 	@Override
 	public void setUrl(String topPlaylistUrl) throws Exception {
 		this.fullUrl = topPlaylistUrl;
-		
+
 		parseAndAddToList(Uri.parse(topPlaylistUrl), true);
 	}
 
@@ -223,8 +229,10 @@ public class HLSLocalStreamProxy implements HLSLocalStreamProxyInterface {
 
 	@Override
 	public Vector<Float> getAvailableQualities() {
-		// TODO Auto-generated method stub
-		return null;
+
+		Vector<Float> list = new Vector<Float>(
+				this.playlistQualityUrlMap.keySet());
+		return list;
 	}
 
 	@Override
