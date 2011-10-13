@@ -1,4 +1,4 @@
-package se.miun.hls;
+package videoproxy;
 
 import java.util.Vector;
 
@@ -8,7 +8,7 @@ public interface HLSLocalStreamProxyInterface {
 	 * Tell the proxy which top-playlist-url to use. This method will block until everything has beed parsed 
 	 * @param topPlaylistUrl
 	 */
-	void setUrl(String topPlaylistUrl);
+	void setUrl(String topPlaylistUrl) throws Exception;
 	
 	/**
 	 * Get the current HLS playlist url
