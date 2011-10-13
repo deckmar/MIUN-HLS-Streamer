@@ -1,4 +1,4 @@
-package se.miun.hls;
+package videoproxy;
 
 import java.util.Vector;
 
