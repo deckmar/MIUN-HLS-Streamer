@@ -3,25 +3,32 @@
 	xmlns:android="http://schemas.android.com/apk/res/android"
    	
    	android:layout_width="fill_parent" 
-   	android:layout_height="fill_parent">
-    <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:id="@+id/progressBarLayout" android:gravity="center_vertical|center_horizontal|center" android:visibility="invisible">
-        <ProgressBar style="?android:attr/progressBarStyleLarge" android:layout_height="wrap_content" android:layout_width="wrap_content" android:id="@+id/progressBar1"></ProgressBar>
+   	android:layout_height="fill_parent"
+   	android:background="#00ffffff"
+   	>
+   	
+    <LinearLayout android:id="@+id/linearLayout1" android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="left|center_vertical" android:orientation="horizontal">
+        <ImageView android:id="@+id/imageView1" android:src="@drawable/miun_logo_land" android:layout_height="wrap_content" android:layout_width="wrap_content"></ImageView>
+        
+        
+    </LinearLayout> 
+    <LinearLayout android:id="@+id/linearLayout1" android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center_horizontal|center_vertical" android:orientation="horizontal">
+        
+        <TextView android:textAppearance="?android:attr/textAppearanceLarge" android:layout_height="wrap_content" android:text="MIUN HLS PLAYER" android:id="@+id/textView1" android:layout_width="wrap_content"
+        android:layout_gravity="center" android:textSize="35dp"></TextView>
+        
     </LinearLayout> 
 	
 	<LinearLayout 
-		xmlns:android="http://schemas.android.com/apk/res/android"
-		android:id="@+id/videoLayout"
-	    android:orientation="vertical"
-	    android:gravity="center"
-	    android:layout_gravity="center"
-	    android:layout_width="fill_parent"
-	    android:layout_height="fill_parent"
-	    >
-		<VideoView 
-			android:id="@+id/videoView" 
-			android:layout_width="match_parent" 
-			android:layout_height="wrap_content">
-		</VideoView>
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:id="@+id/videoLayout"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:layout_gravity="center"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    >
+			<VideoView android:layout_height="wrap_content" android:id="@+id/videoView" android:layout_width="427dp"></VideoView>
 	</LinearLayout>
 	
 	<TextView  
@@ -31,7 +38,7 @@
 	    android:layout_gravity="bottom"
 	    android:gravity="center_horizontal"
 	    android:background="#ffffffff" />
-	
+ 	
 	<Button android:id="@+id/floating_play_pause" 
              android:layout_width="wrap_content" 
              android:layout_height="wrap_content" 
@@ -56,5 +63,6 @@
              android:layout_marginRight="15dp"
              android:layout_marginBottom="15dp" 
              android:layout_gravity="right|bottom" />
+	
 </FrameLayout> 
 		
