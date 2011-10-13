@@ -72,7 +72,7 @@ public class HLSLocalStreamProxy implements HLSLocalStreamProxyInterface,
 				HLSLocalStreamProxy parent = HLSLocalStreamProxy.this;
 
 				try {
-					while (parent.runSocketLoop) {
+					while (!srvSock.isClosed() && parent.runSocketLoop) {
 						Socket sock = parent.srvSock.accept();
 						OutputStream os = sock.getOutputStream();
 
@@ -86,13 +86,11 @@ public class HLSLocalStreamProxy implements HLSLocalStreamProxyInterface,
 									.get(parent.currentPlayingVideoFile++);
 
 							if (!buff.isReady) {
-								for (int sleeper = 0; sleeper < 1000; sleeper++) {
+								for (int sleeper = 0; sleeper < 2000; sleeper++) {
 									Thread.sleep(10);
 									if (buff.isReady)
 										break;
 								}
-								Log.w(TAG,
-										"Oops, waited 10 seconds for movie but it just wasn't enough..");
 							}
 
 							buff.streamTo(os);
@@ -262,6 +260,8 @@ public class HLSLocalStreamProxy implements HLSLocalStreamProxyInterface,
 						.get(quals.get(this.currentQuality)) + "/"
 				+ this.videoFileNames.get(this.currentCachedVideoFile);
 
+		Log.d(TAG, "Downloading: " + videoUrl);
+
 		if (callback) {
 			video.setReadyListener(this);
 		}
@@ -290,7 +290,18 @@ public class HLSLocalStreamProxy implements HLSLocalStreamProxyInterface,
 
 	@Override
 	public void setQuality(int qualityIndex) {
+		if (qualityIndex == this.currentQuality) {
+			return;
+		}
 		this.currentQuality = qualityIndex;
+
+		for (int i = this.bufferedVideoParts.size() - 1; i > this.currentPlayingVideoFile + 1; i--) {
+			this.bufferedVideoParts.remove(i);
+			this.currentCachedVideoFile--;
+		}
+		
+		startCacheingVideo(++this.currentCachedVideoFile, false);
+		startCacheingVideo(++this.currentCachedVideoFile, false);
 	}
 
 	@Override

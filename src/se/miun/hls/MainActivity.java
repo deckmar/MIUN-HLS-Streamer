@@ -230,6 +230,8 @@ public class MainActivity extends Activity implements OnCompletionListener,
 			dialog.setItems(qualities, new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface diaInt, int quality) {
+					hlsProxy.setQuality(quality);
+					//readyForPlaybackNow();
 					Toast.makeText(getApplicationContext(),
 							qualities[quality] + " selected!",
 							Toast.LENGTH_SHORT).show();
