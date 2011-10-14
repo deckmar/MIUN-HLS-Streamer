@@ -12,7 +12,9 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.net.Uri;
+import android.opengl.Visibility;
 import android.os.Bundle;
+import android.text.Layout;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -178,9 +180,9 @@ public class MainActivity extends Activity implements OnCompletionListener,
 			for (Float q : this.hlsProxy.getAvailableQualities()) {
 				Log.d(TAG, q.toString());
 			}
-
+			
 			video.setOnCompletionListener(this);
-
+			
 			/*
 			 * if (video_uri_list.size() > 0) { // Start playing all the video
 			 * files described by the HLS link onCompletion(null); }
@@ -200,13 +202,13 @@ public class MainActivity extends Activity implements OnCompletionListener,
 	// }
 
 	@Override
-	public void onCompletion(MediaPlayer mp) {
+	public void onCompletion(MediaPlayer arg0) {
 		video.bringToFront();
-		playNextVideo();
+		playNextVideo();	
 	}
 
 	private void playNextVideo() {
-		//readyForPlaybackNow();
+		readyForPlaybackNow();
 	}
 
 	@Override
