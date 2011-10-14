@@ -127,7 +127,8 @@ public class MainActivity extends Activity implements OnCompletionListener,
 					video.pause();
 				} else {
 					switchPlayOrPausButtonState(video.isPlaying()); // Switch button icon
-					video.resume();
+					//video.resume(); //TODO Which one to use?
+					video.start();
 				}
 			}
 		});
