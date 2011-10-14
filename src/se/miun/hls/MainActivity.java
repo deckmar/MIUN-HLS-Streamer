@@ -201,6 +201,7 @@ public class MainActivity extends Activity implements OnCompletionListener,
 
 	@Override
 	public void onCompletion(MediaPlayer mp) {
+		video.bringToFront();
 		playNextVideo();
 	}
 
