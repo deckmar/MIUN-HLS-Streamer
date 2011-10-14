@@ -12,9 +12,7 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.net.Uri;
-import android.opengl.Visibility;
 import android.os.Bundle;
-import android.text.Layout;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -63,6 +61,7 @@ public class MainActivity extends Activity implements OnCompletionListener,
 		this.seekBar = (SeekBar) this.findViewById(R.id.floating_seekbar);
 		this.videoLayout = (LinearLayout) this.findViewById(R.id.videoLayout);
 
+		this.video.setVisibility(View.INVISIBLE);
 		this.menuBackground.setVisibility((int) View.INVISIBLE);
 		this.playOrPauseButton.setVisibility(View.INVISIBLE);
 		this.muteButton.setVisibility(View.INVISIBLE);
@@ -124,14 +123,10 @@ public class MainActivity extends Activity implements OnCompletionListener,
 			@Override
 			public void onClick(View v) {
 				if (video.isPlaying()) {
-					switchPlayOrPausButtonState(video.isPlaying()); // Switch
-																	// button
-																	// icon
+					switchPlayOrPausButtonState(video.isPlaying()); // Switch button icon
 					video.pause();
 				} else {
-					switchPlayOrPausButtonState(video.isPlaying()); // Switch
-																	// button
-																	// icon
+					switchPlayOrPausButtonState(video.isPlaying()); // Switch button icon
 					video.resume();
 				}
 			}
@@ -180,9 +175,9 @@ public class MainActivity extends Activity implements OnCompletionListener,
 			for (Float q : this.hlsProxy.getAvailableQualities()) {
 				Log.d(TAG, q.toString());
 			}
-			
+
 			video.setOnCompletionListener(this);
-			
+
 			/*
 			 * if (video_uri_list.size() > 0) { // Start playing all the video
 			 * files described by the HLS link onCompletion(null); }
@@ -202,13 +197,13 @@ public class MainActivity extends Activity implements OnCompletionListener,
 	// }
 
 	@Override
-	public void onCompletion(MediaPlayer arg0) {
-		video.bringToFront();
-		playNextVideo();	
+	public void onCompletion(MediaPlayer mp) {
+		video.bringToFront(); //TODO Remove?//TODO Test
+		playNextVideo();
 	}
 
 	private void playNextVideo() {
-		readyForPlaybackNow();
+		//readyForPlaybackNow();
 	}
 
 	@Override
@@ -340,7 +335,7 @@ public class MainActivity extends Activity implements OnCompletionListener,
 				// TODO: Bug on startup when screen is tapped for the first time
 				// (popup menu stays behind the videoView)
 
-				this.videoLayout.invalidate();
+				//this.videoLayout.invalidate(); //TODO Remove?
 				this.menuBackground.bringToFront();
 				this.playOrPauseButton.bringToFront();
 				this.muteButton.bringToFront();
@@ -377,6 +372,8 @@ public class MainActivity extends Activity implements OnCompletionListener,
 		MainActivity.this.runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
+				video.bringToFront(); //TODO Remove?
+				video.setVisibility( View.VISIBLE );
 				video.setVideoURI(Uri.parse(currentUrl));
 				video.start();
 				Log.d(TAG, "Told player to start: " + currentUrl);
