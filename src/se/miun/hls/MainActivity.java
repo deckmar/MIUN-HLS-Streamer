@@ -1,5 +1,6 @@
 package se.miun.hls;
 
+import java.util.Arrays;
 import java.util.Vector;
 
 import videoproxy.HLSLocalStreamProxyEventListener;
@@ -45,6 +46,7 @@ public class MainActivity extends Activity implements OnCompletionListener,
 	private boolean menuToggle;
 	private AudioManager mAm;
 	private boolean mIsMute;
+	private String[] qualitiesArrayForMenu;
 
 	/** Called when the activity is first created. */
 	@Override
@@ -176,6 +178,20 @@ public class MainActivity extends Activity implements OnCompletionListener,
 			for (Float q : this.hlsProxy.getAvailableQualities()) {
 				Log.d(TAG, q.toString());
 			}
+			
+			//create String array of qualities for the menu
+			Vector<Float> qualitiesVector = hlsProxy.getAvailableQualities();
+			Float[] floatQualitiesArray = qualitiesVector.toArray(new Float[qualitiesVector.size()]);
+			Arrays.sort(floatQualitiesArray);
+			
+			String[] tempqualitiesArray = new String[floatQualitiesArray.length];
+			int index = 0;
+			for(float floatQuality : floatQualitiesArray){
+				tempqualitiesArray[index] = Float.toString(floatQuality) + " Mbps";
+				index++;
+			}
+			
+			qualitiesArrayForMenu = tempqualitiesArray;
 
 			video.setOnCompletionListener(this);
 
@@ -222,17 +238,15 @@ public class MainActivity extends Activity implements OnCompletionListener,
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case 1:
-			final String[] qualities = { "Quality1", "Quality2", "Quality3",
-					"Quality4" };
 			AlertDialog.Builder dialog = new AlertDialog.Builder(this);
 			dialog.setTitle("Select a quality");
-			dialog.setItems(qualities, new DialogInterface.OnClickListener() {
+			dialog.setItems(qualitiesArrayForMenu, new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface diaInt, int quality) {
 					hlsProxy.setQuality(quality);
 					//readyForPlaybackNow();
 					Toast.makeText(getApplicationContext(),
-							qualities[quality] + " selected!",
+							qualitiesArrayForMenu[quality] + " selected!",
 							Toast.LENGTH_SHORT).show();
 				}
 			}).show();

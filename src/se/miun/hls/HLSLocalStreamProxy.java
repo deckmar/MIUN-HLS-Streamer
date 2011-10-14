@@ -146,6 +146,7 @@ public class HLSLocalStreamProxy implements HLSLocalStreamProxyInterface,
 					// Get the current bandwidth from the EXT comment
 					String[] split2 = line.split("BANDWIDTH=");
 					currentQuality = Float.parseFloat(split2[1]);
+					currentQuality = new Float((int)(currentQuality/10000))/100; // change into Mb
 				} else if (!line.startsWith("#")) {
 
 					String[] split2 = line.split("\\/");
@@ -183,7 +184,7 @@ public class HLSLocalStreamProxy implements HLSLocalStreamProxyInterface,
 				line = line.trim();
 				if (!line.startsWith("#")) {
 					this.videoFileNames.add(line);
-					Log.d(TAG, "File: " + line);
+					//Log.d(TAG, "File: " + line);
 				}
 			}
 		}
@@ -299,7 +300,7 @@ public class HLSLocalStreamProxy implements HLSLocalStreamProxyInterface,
 			this.bufferedVideoParts.remove(i);
 			this.currentCachedVideoFile--;
 		}
-		
+
 		startCacheingVideo(++this.currentCachedVideoFile, false);
 		startCacheingVideo(++this.currentCachedVideoFile, false);
 	}
