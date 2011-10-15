@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.Vector;
 
 import videoproxy.HLSLocalStreamProxyEventListener;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -20,6 +19,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnTouchListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -81,43 +81,84 @@ public class MainActivity extends Activity implements OnCompletionListener,
 
 		initializeAndRun(DEFAULT_URL);
 
-		/*
-		 * try { hlsProxy.parseAndAddToList(Uri .parse(DEFAULT_URL)); //
-		 * .parse("http://devimages.apple.com/iphone/samples/bipbop/bipbopall.m3u8"
-		 * ));
-		 * 
-		 * Log.d(TAG, "List of file uri:"); this.video_uri_list =
-		 * this.hlsProxy.getStreamUris(); for (Uri u : this.video_uri_list) {
-		 * Log.d(TAG, u.toString()); }
-		 * 
-		 * video.setOnCompletionListener(this);
-		 * 
-		 * if (video_uri_list.size() > 0) { // Start playing all the video files
-		 * described by the HLS link onCompletion(null); } } catch (Exception e)
-		 * { e.printStackTrace(); }
+		
+//		try { hlsProxy.parseAndAddToList(Uri .parse(DEFAULT_URL)); //
+//		.parse("http://devimages.apple.com/iphone/samples/bipbop/bipbopall.m3u8"
+//		));
+//		  
+//		Log.d(TAG, "List of file uri:"); this.video_uri_list =
+//		this.hlsProxy.getStreamUris(); for (Uri u : this.video_uri_list) {
+//		Log.d(TAG, u.toString()); }
+//		  
+//		video.setOnCompletionListener(this);
+//		  
+//		if (video_uri_list.size() > 0) { // Start playing all the video files
+//		described by the HLS link onCompletion(null); } } catch (Exception e)
+//		{ e.printStackTrace(); }
+		 
+		
+		
+		/**
+		 * When Screen is touched and menu is untoggled, present view, otherwise
+		 * hide it.
 		 */
-		// Videoview
-		this.video.setOnClickListener(new OnClickListener() {
-
+		this.video.setOnTouchListener( new OnTouchListener() {
+			
 			@Override
-			public void onClick(View v) {
-				if (menuToggle) {
-					menuBackground.setVisibility(View.INVISIBLE);
-					playOrPauseButton.setVisibility(View.INVISIBLE);
-					muteButton.setVisibility(View.INVISIBLE);
-					seekBar.setVisibility(View.INVISIBLE);
+			public boolean onTouch(View v, MotionEvent event) {
+				if (event.getAction() == MotionEvent.ACTION_DOWN) {
+					if (menuToggle) {
+						menuBackground.setVisibility(View.INVISIBLE);
+						playOrPauseButton.setVisibility(View.INVISIBLE);
+						muteButton.setVisibility(View.INVISIBLE);
+						seekBar.setVisibility(View.INVISIBLE);
 
-					menuToggle = false;
-				} else {
-					menuBackground.setVisibility(View.VISIBLE);
-					playOrPauseButton.setVisibility(View.VISIBLE);
-					muteButton.setVisibility(View.VISIBLE);
-					seekBar.setVisibility(View.VISIBLE);
+						menuToggle = false;
+					} else {
+						// TODO: Bug on startup when screen is tapped for the first time
+						// (popup menu stays behind the videoView)
 
-					menuToggle = true;
+						//this.videoLayout.invalidate(); //TODO Remove?
+						menuBackground.bringToFront();
+						playOrPauseButton.bringToFront();
+						muteButton.bringToFront();
+						seekBar.bringToFront();
+
+						menuBackground.setVisibility(View.VISIBLE);
+						playOrPauseButton.setVisibility(View.VISIBLE);
+						muteButton.setVisibility(View.VISIBLE);
+						seekBar.setVisibility(View.VISIBLE);
+
+						menuToggle = true;
+					}
+					return true;
 				}
+				return false;
 			}
 		});
+		
+		// Videoview
+//		this.video.setOnClickListener(new OnClickListener() {
+//
+//			@Override
+//			public void onClick(View v) {
+//				if (menuToggle) {
+//					menuBackground.setVisibility(View.INVISIBLE);
+//					playOrPauseButton.setVisibility(View.INVISIBLE);
+//					muteButton.setVisibility(View.INVISIBLE);
+//					seekBar.setVisibility(View.INVISIBLE);
+//
+//					menuToggle = false;
+//				} else {
+//					menuBackground.setVisibility(View.VISIBLE);
+//					playOrPauseButton.setVisibility(View.VISIBLE);
+//					muteButton.setVisibility(View.VISIBLE);
+//					seekBar.setVisibility(View.VISIBLE);
+//
+//					menuToggle = true;
+//				}
+//			}
+//		});
 
 		// Playbutton
 		this.playOrPauseButton.setOnClickListener(new OnClickListener() {
@@ -336,37 +377,37 @@ public class MainActivity extends Activity implements OnCompletionListener,
 	 * When Screen is touched and menu is untoggled, present view, otherwise
 	 * hide it.
 	 */
-	@Override
-	public boolean onTouchEvent(MotionEvent event) {
-		if (event.getAction() == MotionEvent.ACTION_DOWN) {
-			if (menuToggle) {
-				menuBackground.setVisibility(View.INVISIBLE);
-				playOrPauseButton.setVisibility(View.INVISIBLE);
-				muteButton.setVisibility(View.INVISIBLE);
-				seekBar.setVisibility(View.INVISIBLE);
-
-				menuToggle = false;
-			} else {
-				// TODO: Bug on startup when screen is tapped for the first time
-				// (popup menu stays behind the videoView)
-
-				//this.videoLayout.invalidate(); //TODO Remove?
-				this.menuBackground.bringToFront();
-				this.playOrPauseButton.bringToFront();
-				this.muteButton.bringToFront();
-				this.seekBar.bringToFront();
-
-				menuBackground.setVisibility(View.VISIBLE);
-				playOrPauseButton.setVisibility(View.VISIBLE);
-				muteButton.setVisibility(View.VISIBLE);
-				seekBar.setVisibility(View.VISIBLE);
-
-				menuToggle = true;
-			}
-			return true;
-		}
-		return false;
-	}
+//	@Override
+//	public boolean onTouchEvent(MotionEvent event) {
+//		if (event.getAction() == MotionEvent.ACTION_DOWN) {
+//			if (menuToggle) {
+//				menuBackground.setVisibility(View.INVISIBLE);
+//				playOrPauseButton.setVisibility(View.INVISIBLE);
+//				muteButton.setVisibility(View.INVISIBLE);
+//				seekBar.setVisibility(View.INVISIBLE);
+//
+//				menuToggle = false;
+//			} else {
+//				// TODO: Bug on startup when screen is tapped for the first time
+//				// (popup menu stays behind the videoView)
+//
+//				//this.videoLayout.invalidate(); //TODO Remove?
+//				this.menuBackground.bringToFront();
+//				this.playOrPauseButton.bringToFront();
+//				this.muteButton.bringToFront();
+//				this.seekBar.bringToFront();
+//
+//				menuBackground.setVisibility(View.VISIBLE);
+//				playOrPauseButton.setVisibility(View.VISIBLE);
+//				muteButton.setVisibility(View.VISIBLE);
+//				seekBar.setVisibility(View.VISIBLE);
+//
+//				menuToggle = true;
+//			}
+//			return true;
+//		}
+//		return false;
+//	}
 
 	public void isMute() {
 
