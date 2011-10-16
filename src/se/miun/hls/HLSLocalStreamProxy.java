@@ -43,6 +43,9 @@ public class HLSLocalStreamProxy implements HLSLocalStreamProxyInterface,
 	private int currentCachedVideoFile = 0;
 	private int currentPlayingVideoFile = 0;
 
+	private int qualityChangeMillisecondOffset = 0;
+	private int qualityChangeFetchMillisecondOffset = 0;
+
 	private Vector<BufferedVideoFile> bufferedVideoParts = new Vector<BufferedVideoFile>();
 	private String fullUrl;
 
@@ -73,32 +76,37 @@ public class HLSLocalStreamProxy implements HLSLocalStreamProxyInterface,
 
 				try {
 					while (!srvSock.isClosed() && parent.runSocketLoop) {
-						Socket sock = parent.srvSock.accept();
-						OutputStream os = sock.getOutputStream();
+						try {
+							Socket sock = parent.srvSock.accept();
+							OutputStream os = sock.getOutputStream();
 
-						String headers = "HTTP/1.0 200 OK\nContent-Type: application/video; charset=UTF-8\nContent-Length: 11789782\nDate: Thu, 13 Oct 2011 00:34:08 GMT\n\n";
-						os.write(headers.getBytes());
-						os.flush();
+							String headers = "HTTP/1.0 200 OK\nContent-Type: application/video; charset=UTF-8\nContent-Length: 11789782\nDate: Thu, 13 Oct 2011 00:34:08 GMT\n\n";
+							os.write(headers.getBytes());
+							os.flush();
 
-						for (int i = 0; i < 180; i++) {
+							for (int i = 0; i < 180; i++) {
 
-							BufferedVideoFile buff = parent.bufferedVideoParts
-									.get(parent.currentPlayingVideoFile++);
+								BufferedVideoFile buff = parent.bufferedVideoParts
+										.get(i);
 
-							if (!buff.isReady) {
-								for (int sleeper = 0; sleeper < 2000; sleeper++) {
-									Thread.sleep(10);
-									if (buff.isReady)
-										break;
+								if (!buff.isReady) {
+									for (int sleeper = 0; sleeper < 2000; sleeper++) {
+										Thread.sleep(10);
+										if (buff.isReady)
+											break;
+									}
 								}
+
+								buff.streamTo(os);
+
+								startCacheingVideo(
+										++parent.currentCachedVideoFile, false);
 							}
+							sock.close();
 
-							buff.streamTo(os);
-
-							startCacheingVideo(++parent.currentCachedVideoFile,
-									false);
+						} catch (IOException ex) {
+							ex.printStackTrace();
 						}
-						sock.close();
 					}
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
@@ -295,12 +303,25 @@ public class HLSLocalStreamProxy implements HLSLocalStreamProxyInterface,
 		}
 		this.currentQuality = qualityIndex;
 
-		for (int i = this.bufferedVideoParts.size() - 1; i > this.currentPlayingVideoFile + 1; i--) {
-			this.bufferedVideoParts.remove(i);
-			this.currentCachedVideoFile--;
-		}
-		
-		startCacheingVideo(++this.currentCachedVideoFile, false);
+		/*
+		 * for (int i = this.bufferedVideoParts.size() - 1; i >
+		 * this.currentPlayingVideoFile + 1; i--) {
+		 * this.bufferedVideoParts.remove(i); this.currentCachedVideoFile--; }
+		 */
+
+		this.listener.preparingForQualityChange();
+		this.bufferedVideoParts.clear();
+
+		this.qualityChangeFetchMillisecondOffset += this.listener
+				.currentlyPlayedMilliseconds();
+		this.currentPlayingVideoFile = this.currentCachedVideoFile = (this.listener
+				.currentlyPlayedMilliseconds() / 10000)
+				+ (this.qualityChangeFetchMillisecondOffset / 10000);
+
+		this.qualityChangeMillisecondOffset = this.listener
+				.currentlyPlayedMilliseconds() % 10000;
+
+		startCacheingVideo(++this.currentCachedVideoFile, true);
 		startCacheingVideo(++this.currentCachedVideoFile, false);
 	}
 
@@ -320,6 +341,6 @@ public class HLSLocalStreamProxy implements HLSLocalStreamProxyInterface,
 	public void fileIsNowReady(BufferedVideoFile file) {
 		// The first video file is now downloaded.
 		// Tell player we are ready.
-		this.listener.readyForPlaybackNow();
+		this.listener.readyForPlaybackNow(this.qualityChangeMillisecondOffset);
 	}
 }

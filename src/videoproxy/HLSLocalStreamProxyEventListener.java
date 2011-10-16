@@ -5,6 +5,8 @@ public interface HLSLocalStreamProxyEventListener {
 	void errorNetwork(String msg);
 	void errorOther(Exception ex);
 	
-	void readyForPlaybackNow();
+	void readyForPlaybackNow(int millisecondOffset);
+	void preparingForQualityChange();
+	int currentlyPlayedMilliseconds();
 	
 }

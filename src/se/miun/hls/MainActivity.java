@@ -66,7 +66,8 @@ public class MainActivity extends Activity implements OnCompletionListener,
 		this.playOrPauseButton.setVisibility(View.INVISIBLE);
 		this.muteButton.setVisibility(View.INVISIBLE);
 		this.seekBar.setVisibility(View.INVISIBLE);
-
+		
+		
 		// this.seekBar.setMax( int max ); //e.g. 180 (number of subclips)
 		// this.seekBar.setProgress( int progress ); //update on change of
 		// subclip and on seekbar change e.g. 5
@@ -367,7 +368,7 @@ public class MainActivity extends Activity implements OnCompletionListener,
 	}
 
 	@Override
-	public void readyForPlaybackNow() {
+	public void readyForPlaybackNow(final int millisecondOffset) {
 		final String currentUrl = this.hlsProxy.getNextLocalVideoUrl();
 
 		MainActivity.this.runOnUiThread(new Runnable() {
@@ -377,8 +378,19 @@ public class MainActivity extends Activity implements OnCompletionListener,
 				video.setVisibility( View.VISIBLE );
 				video.setVideoURI(Uri.parse(currentUrl));
 				video.start();
+				video.seekTo(millisecondOffset);
 				Log.d(TAG, "Told player to start: " + currentUrl);
 			}
 		});
+	}
+
+	@Override
+	public void preparingForQualityChange() {
+		this.video.pause();
+	}
+
+	@Override
+	public int currentlyPlayedMilliseconds() {
+		return this.video.getCurrentPosition();
 	}
 }
