@@ -50,7 +50,7 @@
 			<VideoView 
 				android:layout_height="wrap_content" 
 				android:id="@+id/videoView" 
-				android:layout_width="427dp">
+				android:layout_width="fill_parent">
 			</VideoView>
 	</LinearLayout>
 	
